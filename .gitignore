@@ -1,0 +1,19 @@
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Bb]in/
+[Oo]bj/
+
+# .env files
+.env
+.env.*
+!.env.example
+
+# Visual Studio 2015/2017/2019/2022 cache icons
+.vs/
