@@ -8,5 +8,6 @@ namespace _2026_peminjaman_ruangan_backend.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Room> Rooms { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
     }
 }
