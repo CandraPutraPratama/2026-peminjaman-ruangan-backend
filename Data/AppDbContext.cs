@@ -9,6 +9,7 @@ namespace _2026_peminjaman_ruangan_backend.Data
 
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +40,11 @@ namespace _2026_peminjaman_ruangan_backend.Data
                     StartTime = new DateTime(2026, 2, 11, 13, 0, 0),
                     EndTime = new DateTime(2026, 2, 11, 16, 0, 0)
                 }
+            );
+
+            modelBuilder.Entity<Customer>().HasData(
+                new Customer { Id = 1, Name = "Candra", Email = "candra@pdbl.com", PhoneNumber = "081234567890" },
+                new Customer { Id = 2, Name = "Putra", Email = "putra@pdbl.com", PhoneNumber = "081234567891" }
             );
         }
     }

@@ -20,3 +20,16 @@ Content-Type: application/json
   "startTime": "2026-02-15T08:00:00",
   "endTime": "2026-02-15T12:00:00"
 }
+
+### Tambah Customer Baru
+POST http://localhost:5160/api/customers
+Content-Type: application/json
+
+{
+  "name": "Pratama",
+  "email": "pratama@pbl.com",
+  "phoneNumber": "081234567892"
+}
+
+### Hapus Customer ID 1
+DELETE http://localhost:5160/api/customers/1
