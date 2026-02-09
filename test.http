@@ -1,0 +1,11 @@
+### Ambil Semua Ruangan
+GET http://localhost:5160/api/rooms
+
+### Tambah Ruangan Baru
+POST http://localhost:5160/api/rooms
+Content-Type: application/json
+
+{
+  "name": "Ruang Gaming Pro",
+  "capacity": 5
+}
