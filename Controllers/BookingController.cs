@@ -21,12 +21,27 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
 
         // 1. GET: api/bookings (untuk mengambil semua jadwal booking)
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BookingDTO>>> GetBookings()
+        public async Task<ActionResult<IEnumerable<BookingDTO>>> GetBookings(int? roomId, DateTime? fromDate, DateTime? toDate)
         {
-            return await _context.Bookings
-                .Include(b => b.Room) // untuk mengambil data ruangan
-                .Include(b => b.Customer) // untuk mengambil data customer
-                .Select(b => new BookingDTO
+            var query = _context.Bookings.Include(b => b.Room).Include(b => b.Customer).AsQueryable();
+
+            // filter berdasarkan ruangan
+            if (roomId.HasValue)
+            {
+                query = query.Where(b => b.RoomId == roomId.Value);
+            }
+
+            // filter berdasarkan rentang waktu
+            if (fromDate.HasValue)
+            {
+                query = query.Where(b => b.StartTime >= fromDate.Value);
+            }
+            if (toDate.HasValue)
+            {
+                query = query.Where(b => b.EndTime <= toDate.Value);
+            }
+
+            return await query.Select(b => new BookingDTO
                 {
                     Id = b.Id,
                     RoomId = b.RoomId,

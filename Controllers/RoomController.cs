@@ -21,11 +21,16 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
 
         // 1. GET: api/rooms (untuk ambil semua ruangan)
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RoomDTO>>> GetRooms()
+        public async Task<ActionResult<IEnumerable<RoomDTO>>> GetRooms(string? search)
         {
-            return await _context.Rooms
-                .Select(r => new RoomDTO { Id = r.Id, Name = r.Name, Capacity = r.Capacity })
-                .ToListAsync();
+            var query = _context.Rooms.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(r => r.Name.Contains(search));
+            }
+
+            return await query.Select(r => new RoomDTO { Id = r.Id, Name = r.Name, Capacity = r.Capacity }).ToListAsync();
         }
 
         // 2. POST: api/rooms (untuk tambah ruangan baru)

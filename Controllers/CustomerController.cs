@@ -19,12 +19,18 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
 
         // 1. GET: api/customers (daftar semua customer)
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CustomerDTO>>> GetCustomers()
+        public async Task<ActionResult<IEnumerable<CustomerDTO>>> GetCustomers(string? search)
         {
-            return await _context.Customers
-                .Select(c => new CustomerDTO { 
-                    Id = c.Id, 
-                    Name = c.Name, 
+            var query = _context.Customers.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(c => c.Name.Contains(search) || c.Email.Contains(search));
+            }
+
+            return await query.Select(c => new CustomerDTO { 
+                Id = c.Id, 
+                Name = c.Name, 
                     Email = c.Email, 
                     PhoneNumber = c.PhoneNumber 
                 }).ToListAsync();
