@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using _2026_peminjaman_ruangan_backend.Data;
 using _2026_peminjaman_ruangan_backend.Models;
 using _2026_peminjaman_ruangan_backend.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace _2026_peminjaman_ruangan_backend.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BookingsController : ControllerBase
@@ -23,12 +25,14 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
         {
             return await _context.Bookings
                 .Include(b => b.Room) // untuk mengambil data ruangan
+                .Include(b => b.Customer) // untuk mengambil data customer
                 .Select(b => new BookingDTO
                 {
                     Id = b.Id,
                     RoomId = b.RoomId,
                     RoomName = b.Room != null ? b.Room.Name : null,
-                    UserEmail = b.UserEmail,
+                    CustomerId = b.CustomerId,
+                    CustomerName = b.Customer != null ? b.Customer.Name : null,
                     StartTime = b.StartTime,
                     EndTime = b.EndTime
                 }).ToListAsync();
@@ -38,14 +42,24 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
         [HttpPost]
         public async Task<ActionResult<BookingDTO>> PostBooking(CreateBookingDTO dto)
         {
-            // untuk memastikan ruangannya memang ada
+            // untuk memastikan ruangan dan Customernya memang ada
             var roomExists = await _context.Rooms.AnyAsync(r => r.Id == dto.RoomId);
+            var customerExists = await _context.Customers.AnyAsync(c => c.Id == dto.CustomerId);
             if (!roomExists) return BadRequest("Ruangan tidak ditemukan, cek lagi ID-nya!");
+            if (!customerExists) return BadRequest("Customer tidak ditemukan, cek lagi ID-nya!");
+
+            var isBentrok = await _context.Bookings.AnyAsync(b =>
+                b.RoomId == dto.RoomId &&
+                dto.StartTime < b.EndTime &&
+                dto.EndTime > b.StartTime);
+
+            if (isBentrok)
+                return BadRequest("Jadwal bentrok dengan booking yang sudah ada!");
 
             var booking = new Booking
             {
                 RoomId = dto.RoomId,
-                UserEmail = dto.UserEmail,
+                CustomerId = dto.CustomerId,
                 StartTime = dto.StartTime,
                 EndTime = dto.EndTime
             };

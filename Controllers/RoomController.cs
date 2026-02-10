@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using _2026_peminjaman_ruangan_backend.Data;
 using _2026_peminjaman_ruangan_backend.Models;
 using _2026_peminjaman_ruangan_backend.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace _2026_peminjaman_ruangan_backend.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RoomsController : ControllerBase

@@ -10,6 +10,7 @@ namespace _2026_peminjaman_ruangan_backend.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,7 +29,7 @@ namespace _2026_peminjaman_ruangan_backend.Data
                 {
                     Id = 1,
                     RoomId = 1, // Ruang Rapat Utama
-                    UserEmail = "candra@pdbl.com",
+                    CustomerId = 1,
                     StartTime = new DateTime(2026, 2, 10, 9, 0, 0),
                     EndTime = new DateTime(2026, 2, 10, 11, 0, 0)
                 },
@@ -36,7 +37,7 @@ namespace _2026_peminjaman_ruangan_backend.Data
                 {
                     Id = 2,
                     RoomId = 2, // Lab Komputer 1
-                    UserEmail = "putra@pdbl.com",
+                    CustomerId = 2,
                     StartTime = new DateTime(2026, 2, 11, 13, 0, 0),
                     EndTime = new DateTime(2026, 2, 11, 16, 0, 0)
                 }

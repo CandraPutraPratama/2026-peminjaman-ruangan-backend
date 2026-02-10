@@ -33,3 +33,17 @@ Content-Type: application/json
 
 ### Hapus Customer ID 1
 DELETE http://localhost:5160/api/customers/1
+
+### Cek Data Awal (GET)
+GET http://localhost:5160/api/bookings
+
+### Tes Booking bentrok
+POST http://localhost:5160/api/bookings
+Content-Type: application/json
+
+{
+  "roomId": 1,
+  "customerId": 3,
+  "startTime": "2026-02-10T14:00:00",
+  "endTime": "2026-02-10T16:00:00"
+}

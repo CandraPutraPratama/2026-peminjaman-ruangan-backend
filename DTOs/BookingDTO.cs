@@ -5,8 +5,9 @@ namespace _2026_peminjaman_ruangan_backend.DTOs
         public int Id { get; set; }
         public int RoomId { get; set; }
         public string? RoomName { get; set; }
-        public string UserEmail { get; set; } = string.Empty;
+        public int CustomerId { get; set; }
+        public string? CustomerName { get; set; }
         public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; } 
+        public DateTime EndTime { get; set; }
     }
 }
