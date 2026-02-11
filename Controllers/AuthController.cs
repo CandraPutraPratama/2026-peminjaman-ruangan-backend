@@ -45,7 +45,7 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
         public async Task<ActionResult<string>> Login(LoginDto dto)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
-            
+
             // cek user ada apa ngga & password bener apa ngga
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 return BadRequest("Username atau Password salah!");
@@ -57,7 +57,8 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
         {
             var claims = new List<Claim> {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim("id", user.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Key").Value!));

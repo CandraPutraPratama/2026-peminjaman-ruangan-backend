@@ -4,6 +4,7 @@ using _2026_peminjaman_ruangan_backend.Data;
 using _2026_peminjaman_ruangan_backend.Models;
 using _2026_peminjaman_ruangan_backend.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace _2026_peminjaman_ruangan_backend.Controllers
 {
@@ -19,50 +20,46 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
             _context = context;
         }
 
-        // 1. GET: api/bookings (untuk mengambil semua jadwal booking)
+        // 1. GET: api/bookings (Ambil semua bokingan + Data User)
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BookingDTO>>> GetBookings(int? roomId, DateTime? fromDate, DateTime? toDate)
         {
-            var query = _context.Bookings.Include(b => b.Room).Include(b => b.Customer).AsQueryable();
+            // panggil Room DAN Customer biar infonya lengkap
+            var query = _context.Bookings
+                .Include(b => b.Room)
+                .Include(b => b.Customer)
+                .AsQueryable();
 
-            // filter berdasarkan ruangan
-            if (roomId.HasValue)
-            {
-                query = query.Where(b => b.RoomId == roomId.Value);
-            }
-
-            // filter berdasarkan rentang waktu
-            if (fromDate.HasValue)
-            {
-                query = query.Where(b => b.StartTime >= fromDate.Value);
-            }
-            if (toDate.HasValue)
-            {
-                query = query.Where(b => b.EndTime <= toDate.Value);
-            }
+            if (roomId.HasValue) query = query.Where(b => b.RoomId == roomId.Value);
+            if (fromDate.HasValue) query = query.Where(b => b.StartTime >= fromDate.Value);
+            if (toDate.HasValue) query = query.Where(b => b.EndTime <= toDate.Value);
 
             return await query.Select(b => new BookingDTO
-                {
-                    Id = b.Id,
-                    RoomId = b.RoomId,
-                    RoomName = b.Room != null ? b.Room.Name : null,
-                    CustomerId = b.CustomerId,
-                    CustomerName = b.Customer != null ? b.Customer.Name : null,
-                    StartTime = b.StartTime,
-                    EndTime = b.EndTime
-                }).ToListAsync();
+            {
+                Id = b.Id,
+                RoomId = b.RoomId,
+                RoomName = b.Room != null ? b.Room.Name : null,
+                CustomerId = b.CustomerId,
+                CustomerName = b.Customer != null ? b.Customer.Username : "Unknown",
+                StartTime = b.StartTime,
+                EndTime = b.EndTime
+            }).ToListAsync();
         }
 
-        // 2. POST: api/bookings (untuk menambah booking baru)
+        // 2. POST: api/bookings (Boking Ruangan Pake Token JWT)
         [HttpPost]
         public async Task<ActionResult<BookingDTO>> PostBooking(CreateBookingDTO dto)
         {
-            // untuk memastikan ruangan dan Customernya memang ada
-            var roomExists = await _context.Rooms.AnyAsync(r => r.Id == dto.RoomId);
-            var customerExists = await _context.Customers.AnyAsync(c => c.Id == dto.CustomerId);
-            if (!roomExists) return BadRequest("Ruangan tidak ditemukan, cek lagi ID-nya!");
-            if (!customerExists) return BadRequest("Customer tidak ditemukan, cek lagi ID-nya!");
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr))
+                return Unauthorized("Token tidak valid!");
 
+            int loggedInUserId = int.Parse(userIdStr);
+
+            var roomExists = await _context.Rooms.AnyAsync(r => r.Id == dto.RoomId);
+            if (!roomExists) return BadRequest("Ruangan tidak ditemukan!");
+
+            // Logika Anti-Bentrok
             var isBentrok = await _context.Bookings.AnyAsync(b =>
                 b.RoomId == dto.RoomId &&
                 dto.StartTime < b.EndTime &&
@@ -74,7 +71,7 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
             var booking = new Booking
             {
                 RoomId = dto.RoomId,
-                CustomerId = dto.CustomerId,
+                CustomerId = loggedInUserId,
                 StartTime = dto.StartTime,
                 EndTime = dto.EndTime
             };
@@ -82,10 +79,10 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetBookings), new { id = booking.Id }, dto);
+            return Ok(new { message = "Booking berhasil dibuat!", id = booking.Id });
         }
 
-        // 3. DELETE: api/bookings/{id} (untuk membatalkan Booking)
+        // 3. DELETE: api/bookings/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBooking(int id)
         {
