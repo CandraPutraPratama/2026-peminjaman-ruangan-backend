@@ -58,7 +58,7 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
         public async Task<IActionResult> DeleteCustomer(int id)
         {
             var customer = await _context.Customers.FindAsync(id);
-            if (customer == null) return NotFound("Customernya ga ketemu brok!");
+            if (customer == null) return NotFound("Customernya tidak ditemukan!");
 
             _context.Customers.Remove(customer);
             await _context.SaveChangesAsync();
