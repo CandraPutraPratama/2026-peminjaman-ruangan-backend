@@ -35,18 +35,20 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
 
         // 2. POST: api/rooms (untuk tambah ruangan baru)
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<RoomDTO>> PostRoom(CreateRoomDTO createDto)
         {
             var room = new Room { Name = createDto.Name, Capacity = createDto.Capacity };
             _context.Rooms.Add(room);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetRooms), new { id = room.Id }, 
+            return CreatedAtAction(nameof(GetRooms), new { id = room.Id },
                 new RoomDTO { Id = room.Id, Name = room.Name, Capacity = room.Capacity });
         }
 
         // 3. DELETE: api/rooms/{id} (untuk hapus ruangan)
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteRoom(int id)
         {
             var room = await _context.Rooms.FindAsync(id);

@@ -26,14 +26,14 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(RegisterDto dto)
         {
-            // untuk cek apa username udah dipake
             if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
                 return BadRequest("Username sudah dipakai, cari yang lain!");
 
             var user = new User
             {
                 Username = dto.Username,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                Role = "User"
             };
 
             _context.Users.Add(user);
@@ -42,15 +42,21 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(LoginDto dto)
+        public async Task<ActionResult<object>> Login(LoginDto dto)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
 
-            // cek user ada apa ngga & password bener apa ngga
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 return BadRequest("Username atau Password salah!");
 
-            return Ok(CreateToken(user));
+            string token = CreateToken(user);
+
+            return Ok(new
+            {
+                token = token,
+                role = user.Role,
+                username = user.Username
+            });
         }
 
         private string CreateToken(User user)
@@ -58,7 +64,8 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
             var claims = new List<Claim> {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim("id", user.Id.ToString())
+                new Claim("id", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Key").Value!));
@@ -68,7 +75,7 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
                 issuer: _configuration.GetSection("Jwt:Issuer").Value,
                 audience: _configuration.GetSection("Jwt:Audience").Value,
                 claims: claims,
-                expires: DateTime.Now.AddDays(1), // info token berlaku 1 hari
+                expires: DateTime.Now.AddDays(1),
                 signingCredentials: creds
             );
 
