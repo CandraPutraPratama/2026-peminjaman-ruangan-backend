@@ -93,5 +93,32 @@ namespace _2026_peminjaman_ruangan_backend.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+        // 1.5 GET: api/bookings/my-bookings (khusus riwayat user yang login)
+        [HttpGet("my-bookings")]
+        public async Task<ActionResult<IEnumerable<BookingDTO>>> GetMyBookings()
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("Login terlebih dahulu!");
+
+            int userId = int.Parse(userIdStr);
+
+            // cuma ambil data bokingan yang CustomerId nya cocok sama user ini
+            var myBookings = await _context.Bookings
+                .Include(b => b.Room)
+                .Where(b => b.CustomerId == userId)
+                .Select(b => new BookingDTO
+                {
+                    Id = b.Id,
+                    RoomId = b.RoomId,
+                    RoomName = b.Room != null ? b.Room.Name : null,
+                    CustomerId = b.CustomerId,
+                    CustomerName = b.Customer != null ? b.Customer.Username : null,
+                    StartTime = b.StartTime,
+                    EndTime = b.EndTime
+                }).ToListAsync();
+
+            return Ok(myBookings);
+        }
     }
 }
