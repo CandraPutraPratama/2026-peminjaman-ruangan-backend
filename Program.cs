@@ -6,6 +6,16 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // tambah Controllers & OpenAPI
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -40,6 +50,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 // konfigurasi middleware
 if (app.Environment.IsDevelopment())

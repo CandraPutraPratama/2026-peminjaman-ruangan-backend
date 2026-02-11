@@ -56,3 +56,14 @@ Content-Type: application/json
   "username": "candraadminpbl2026",
   "password": "candragantengbanget"
 }
+
+### Test Login Admin
+POST http://localhost:5160/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "candraadminpbl2026",
+  "password": "candragantengbanget"
+}
+
+### auth baru eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiY2FuZHJhYWRtaW5wYmwyMDI2IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiVXNlciIsImV4cCI6MTc3MDkwMTg5MywiaXNzIjoiUGVtaW5qYW1hblJ1YW5nYW5CYWNrZW5kIiwiYXVkIjoiUGVtaW5qYW1hblJ1YW5nYW5BcHAifQ.AWO5A3mAQlBjvLe_d67z9K7MS4ZJ85K7L07CoNatgmc
